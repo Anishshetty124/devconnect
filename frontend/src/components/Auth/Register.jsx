@@ -11,34 +11,30 @@ function Register() {
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password }),
-    });
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
 
-    const text = await res.text();  // get raw response
-    console.log("Raw response text:", text);
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
 
-    // try parsing JSON only if not empty
-    const data = text ? JSON.parse(text) : {};
-
-    if (res.ok) {
-      localStorage.setItem("token", data.token);
-      navigate("/Login");
-    } else {
-      alert(data.msg || "Registration failed");
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        navigate("/login", { replace: true });
+      } else {
+        alert(data.msg || "Registration failed");
+      }
+    } catch (err) {
+      console.error("Register Error:", err);
+      alert("Something went wrong");
     }
-  } catch (err) {
-    console.error("Register Error:", err);
-    alert("Something went wrong");
-  }
-  setLoading(false);
-};
-
+    setLoading(false);
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 px-4">
@@ -48,10 +44,15 @@ function Register() {
         aria-label="Register form"
         noValidate
       >
-        {/* Back button */}
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            if (window.history.length > 2) {
+              navigate(-1);
+            } else {
+              navigate("/");
+            }
+          }}
           className="flex items-center gap-2 mb-6 text-indigo-600 hover:text-indigo-800 focus:outline-none"
           aria-label="Go back"
         >
@@ -63,7 +64,10 @@ function Register() {
           Register
         </h2>
 
-        <label htmlFor="username" className="block mb-4 text-gray-700 dark:text-gray-300 font-medium">
+        <label
+          htmlFor="username"
+          className="block mb-4 text-gray-700 dark:text-gray-300 font-medium"
+        >
           Username
         </label>
         <input
@@ -77,7 +81,10 @@ function Register() {
           autoComplete="username"
         />
 
-        <label htmlFor="email" className="block mb-4 text-gray-700 dark:text-gray-300 font-medium">
+        <label
+          htmlFor="email"
+          className="block mb-4 text-gray-700 dark:text-gray-300 font-medium"
+        >
           Email address
         </label>
         <input
@@ -91,7 +98,10 @@ function Register() {
           autoComplete="email"
         />
 
-        <label htmlFor="password" className="block mb-1 text-gray-700 dark:text-gray-300 font-medium">
+        <label
+          htmlFor="password"
+          className="block mb-1 text-gray-700 dark:text-gray-300 font-medium"
+        >
           Password
         </label>
         <div className="relative mb-6">
@@ -112,7 +122,11 @@ function Register() {
             aria-label={showPassword ? "Hide password" : "Show password"}
             tabIndex={-1}
           >
-            {showPassword ? <FaEyeSlash className="w-5 h-5" /> : <FaEye className="w-5 h-5" />}
+            {showPassword ? (
+              <FaEyeSlash className="w-5 h-5" />
+            ) : (
+              <FaEye className="w-5 h-5" />
+            )}
           </button>
         </div>
 
@@ -126,9 +140,23 @@ function Register() {
               : "bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-300 dark:focus:ring-indigo-400"
           }`}
         >
-          {loading && <FaSpinner className="animate-spin mr-2 text-lg" aria-hidden="true" />}
+          {loading && (
+            <FaSpinner className="animate-spin mr-2 text-lg" aria-hidden="true" />
+          )}
           {loading ? "Registering..." : "Register"}
         </button>
+
+        {/* Link to Login */}
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+          Already have an account?{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/login", { replace: true })}
+            className="text-indigo-600 hover:text-indigo-800 font-semibold focus:outline-none"
+          >
+            Login
+          </button>
+        </p>
       </form>
     </div>
   );

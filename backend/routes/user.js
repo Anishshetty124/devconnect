@@ -4,7 +4,7 @@ const User = require('../models/User');
 
 const router = express.Router();
 
-// ✅ Get current user's profile
+// Get current user's profile
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -14,19 +14,32 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
-// ✅ Update profile (bio and avatar)
+// Update username and bio
 router.put('/me', auth, async (req, res) => {
-  const { bio, avatar } = req.body;
+  const { username, bio } = req.body;
 
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
-    user.bio = bio || user.bio;
-    user.avatar = avatar || user.avatar;
+    // Check if username is changing and if new username is already taken
+    if (username && username !== user.username) {
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        return res.status(400).json({ msg: 'Username already taken' });
+      }
+      user.username = username;
+    }
+
+    user.bio = bio !== undefined ? bio : user.bio;
 
     await user.save();
-    res.json({ msg: 'Profile updated', user });
+
+    // Return user without password
+    const userToReturn = user.toObject();
+    delete userToReturn.password;
+
+    res.json(userToReturn);
   } catch (err) {
     res.status(500).json({ msg: 'Server error' });
   }

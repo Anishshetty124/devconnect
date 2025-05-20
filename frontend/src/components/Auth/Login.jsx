@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaSpinner, FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
 
 function Login() {
+  const { setUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,8 +23,10 @@ function Login() {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
+
       if (res.ok) {
         localStorage.setItem("token", data.token);
+        setUser(data.user);
         navigate("/profile");
       } else {
         setError(data.msg || "Login failed");
@@ -41,10 +45,15 @@ function Login() {
         aria-label="Login form"
         noValidate
       >
-        {/* Back button inside form */}
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            if (window.history.length > 2) {
+              navigate(-1);
+            } else {
+              navigate("/");
+            }
+          }}
           className="flex items-center gap-2 mb-6 text-indigo-600 hover:text-indigo-800 focus:outline-none"
           aria-label="Go back"
         >
@@ -126,6 +135,18 @@ function Login() {
           )}
           {loading ? "Logging in..." : "Login"}
         </button>
+
+        {/* Link to Register */}
+        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+          New user?{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/register", { replace: true })}
+            className="text-indigo-600 hover:text-indigo-800 font-semibold focus:outline-none"
+          >
+            Register now
+          </button>
+        </p>
       </form>
     </div>
   );

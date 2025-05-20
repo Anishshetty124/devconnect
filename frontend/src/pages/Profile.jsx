@@ -8,35 +8,44 @@ const Profile = () => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  if (!user) return <p className="text-center mt-10 text-gray-600 dark:text-gray-300">Loading...</p>;
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });  // <-- Use replace here to avoid stacking history
+  };
+
+  if (!user) {
+    return (
+      <p className="text-center mt-10 text-gray-600 dark:text-gray-300">
+        Loading...
+      </p>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      {/* Navbar */}
       <nav className="bg-white dark:bg-gray-800 shadow sticky top-0 z-20 px-6 py-4 flex justify-between items-center">
         <h1
           className="text-xl font-bold text-indigo-600 dark:text-indigo-400 cursor-pointer"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/profile")}
         >
           DevConnect
         </h1>
 
-        {/* Right Section with User Info */}
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className="flex items-center gap-2 text-sm font-medium focus:outline-none"
           >
-            {user.avatarUrl ? (
+            {user.avatar ? (
               <img
-                src={user.avatarUrl}
+                src={user.avatar}
                 alt="avatar"
                 className="w-8 h-8 rounded-full object-cover"
               />
             ) : (
               <FaUserCircle className="w-8 h-8 text-gray-500 dark:text-gray-400" />
             )}
-            <span className="text-gray-800 dark:text-gray-100">{user.username}</span>
+            <span>{user.username}</span>
             <FaChevronDown className="text-gray-500 dark:text-gray-300" />
           </button>
 
@@ -63,7 +72,7 @@ const Profile = () => {
               </button>
               <button
                 onClick={() => {
-                  logout();
+                  handleLogout();
                   setDropdownOpen(false);
                 }}
                 className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -76,22 +85,21 @@ const Profile = () => {
         </div>
       </nav>
 
-      {/* Profile Info */}
       <main className="flex justify-center mt-10 px-4">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-md">
           <div className="flex flex-col items-center text-center">
-            {user.avatarUrl ? (
+            {user.avatar ? (
               <img
-                src={user.avatarUrl}
+                src={user.avatar}
                 alt="User Avatar"
                 className="w-24 h-24 rounded-full object-cover mb-4"
               />
             ) : (
               <FaUserCircle className="w-24 h-24 text-gray-400 dark:text-gray-500 mb-4" />
             )}
-            <h2 className="text-2xl font-semibold">{user.username}</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-2">{user.email}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h2 className="text-2xl font-semibold">{user.fullName || user.username}</h2>
+            <p className="text-gray-600 dark:text-gray-300">{user.email}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               {user.bio || "No bio added yet."}
             </p>
           </div>
