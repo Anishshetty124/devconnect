@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 
 const EditProfile = () => {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
-  // Use username instead of fullName
   const [username, setUsername] = useState(user?.username || "");
   const [bio, setBio] = useState(user?.bio || "");
   const [loading, setLoading] = useState(false);
@@ -25,7 +25,6 @@ const EditProfile = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        // Send username and bio
         body: JSON.stringify({ username, bio }),
       });
 
@@ -37,8 +36,8 @@ const EditProfile = () => {
       }
 
       const updatedUser = await res.json();
-      setUser(updatedUser); // Update user in context
-      navigate("/profile"); // Redirect to profile
+      setUser(updatedUser);
+      navigate("/profile");
     } catch (err) {
       setError("Unexpected error occurred.");
       setLoading(false);
@@ -53,6 +52,17 @@ const EditProfile = () => {
         onSubmit={handleSubmit}
         className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-md w-full max-w-md"
       >
+        {/* Back Button */}
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 mb-6 text-indigo-600 hover:text-indigo-800 focus:outline-none"
+          aria-label="Go back"
+        >
+          <FaArrowLeft className="w-4 h-4" />
+          Back
+        </button>
+
         <h2 className="text-2xl font-semibold mb-6 text-center text-indigo-600 dark:text-indigo-400">
           Edit Profile
         </h2>
